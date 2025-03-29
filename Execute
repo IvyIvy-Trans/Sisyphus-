@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sisyphus</title>
+    <style>
+        body {
+            background-color: white;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-size: 12pt;
+            color: black;
+            text-align: center;
+        }
+
+        .counter {
+            font-size: 30pt;
+            font-weight: bold;
+        }
+
+        .message {
+            font-size: 18pt;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="counter" id="counter">0</div>
+    <div id="message" class="message"></div>
+    <div id="transCount">Trans%: 0</div>
+    <div id="ahCount">Ah!: 0</div>
+    <div id="boulderCount">The boulder fell again: 0</div>
+
+    <script>
+        let counter = 0;
+        let transCount = 0;
+        let ahCount = 0;
+        let boulderCount = 0;
+        let startTime = Date.now();
+        let colorChangeTime = Date.now();
+        let lastMessageTime = Date.now();
+        let lastSpeedUpdateTime = Date.now();
+        let updateInterval = 10000; // 10,000 nanoseconds
+        let speedFactor = 1;
+        let lastUpdateTime = Date.now();
+
+        const colorWheel = [
+            "red", "orange", "yellow", "green", "blue", "indigo", "violet", 
+            "pink", "skyblue", "white", "black"
+        ];
+        
+        const counterElement = document.getElementById("counter");
+        const messageElement = document.getElementById("message");
+        const transCountElement = document.getElementById("transCount");
+        const ahCountElement = document.getElementById("ahCount");
+        const boulderCountElement = document.getElementById("boulderCount");
+
+        // Update the counter every interval
+        function updateCounter() {
+            counter++;
+            counterElement.textContent = counter;
+            checkColorChange();
+            checkMessages();
+            checkBoulderFall();
+        }
+
+        // Check for color change every hour
+        function checkColorChange() {
+            const now = Date.now();
+            if (now - colorChangeTime >= 3600000) { // 1 hour in milliseconds
+                const colorIndex = Math.floor(counter % colorWheel.length);
+                counterElement.style.color = colorWheel[colorIndex];
+                colorChangeTime = now;
+                checkCounters(colorWheel[colorIndex]);
+            }
+        }
+
+        // Check which counters to increment based on color
+        function checkCounters(color) {
+            if (color === "pink" || color === "skyblue" || color === "white") {
+                transCount++;
+                transCountElement.textContent = `Trans%: ${transCount}`;
+            }
+            if (color === "black") {
+                ahCount++;
+                ahCountElement.textContent = `Ah!: ${ahCount}`;
+            }
+        }
+
+        // Display message after every week
+        function checkMessages() {
+            const now = Date.now();
+            if (now - lastMessageTime >= 604800000) { // 1 week in milliseconds
+                messageElement.textContent = "You've forgotten about me, huh?";
+                lastMessageTime = now;
+            }
+        }
+
+        // Check for "The boulder fell again" every 24 hours
+        function checkBoulderFall() {
+            const now = Date.now();
+            if (now - lastSpeedUpdateTime >= 86400000) { // 24 hours in milliseconds
+                boulderCount++;
+                boulderCountElement.textContent = `The boulder fell again: ${boulderCount}`;
+                lastSpeedUpdateTime = now;
+            }
+        }
+
+        // Update speed after certain periods
+        function updateSpeed() {
+            const now = Date.now();
+            const elapsedTime = now - lastUpdateTime;
+
+            if (elapsedTime >= 10000) { // 10,000 nanoseconds
+                speedFactor *= 2; // Double the speed
+                lastUpdateTime = now;
+            }
+
+            setTimeout(updateCounter, updateInterval / speedFactor);
+        }
+
+        // Initialize the app
+        function init() {
+            updateSpeed(); // Start the speed update
+        }
+
+        init();
+    </script>
+</body>
+</html>
